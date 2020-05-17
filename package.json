@@ -1,0 +1,24 @@
+{
+  "name": "lms-borrower-node",
+  "version": "1.0.0",
+  "description": "This project will serve as a microservice to our LMS application and serve the borrowers.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trevorhuis-smoothstack/lms-borrower-node.git"
+  },
+  "author": "Trevor Huis in 't Veld",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trevorhuis-smoothstack/lms-borrower-node/issues"
+  },
+  "homepage": "https://github.com/trevorhuis-smoothstack/lms-borrower-node#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  }
+}
