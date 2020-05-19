@@ -14,7 +14,6 @@ exports.returnBook = (loan, res) => {
       return;
     }
 
-    console.log(result);
     // Check if loan exists
     if (result.length < 1) {
       res.status(404).send("We could not find that loan in the database. ");
