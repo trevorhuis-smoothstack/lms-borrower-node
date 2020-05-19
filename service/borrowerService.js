@@ -9,7 +9,7 @@ const logger = winston.createLogger({
 exports.returnBook = (loan, res) => {
   dao.getLoan(loan, (err, result) => {
     if (err) {
-      res.status(500);
+      res.status(500).send("Internal Server Error");
       logger.error(err);
       return;
     }
@@ -28,7 +28,7 @@ exports.returnBook = (loan, res) => {
 
     dao.returnBook(loan, (err) => {
       if (err) {
-        res.status(500);
+        res.status(500).send("Internal Server Error");
         logger.error(err);
         return;
       }
