@@ -14,14 +14,15 @@ exports.returnBook = (loan, res) => {
       return;
     }
 
+    console.log(result);
     // Check if loan exists
     if (result.length < 1) {
       res.status(404).send("We could not find that loan in the database. ");
-      return false;
-    } else if (result.length > 0 && result[0].dateIn !== undefined) {
+      return;
+    } else if (result.length > 0 && result[0].dateIn !== null) {
       // Check if the book is turned in
       res.status(406).send("That book is already returned. ");
-      return false;
+      return;
     }
 
     loan.dateIn = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
