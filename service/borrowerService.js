@@ -46,22 +46,18 @@ exports.checkOutBook = (loan, res) => {
       if (result.length > 0) return dao.getBookCopies(loan);
       else res.status(400).send("That card number is not in our database. ");
     })
-    // Check if branch has a copy of the book, if so remove one from branch
+    // Check if branch has a copy of the book, if so remove one from branch and checkout book.
     .then((result) => {
       if (result.length > 0 && result[0].noOfCopies > 0) {
-        return dao.removeBookFromCopies(loan, result[0].noOfCopies - 1);
+        loan.dateOut = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+        let dueDate = new Date();
+        dueDate = dueDate.setDate(dueDate.getDate() + 7);
+        loan.dueDate = moment(dueDate).format("YYYY-MM-DD HH:mm:ss");
+        return dao.checkOutBook(loan, result[0].noOfCopies - 1);
       } else
         res
           .status(400)
           .send("There are no copies of that book in our branch.  ");
-    })
-    // Check out the book
-    .then((result) => {
-      loan.dateOut = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-      let dueDate = new Date();
-      dueDate = dueDate.setDate(dueDate.getDate() + 7);
-      loan.dueDate = moment(dueDate).format("YYYY-MM-DD HH:mm:ss");
-      return dao.checkOutBook(loan);
     })
     // Return the checked out book to the user
     .then((result) => {
