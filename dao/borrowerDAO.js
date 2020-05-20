@@ -2,7 +2,8 @@ let db = require("./db");
 
 exports.getLoan = (loan, cb) => {
   db.query(
-    `select * from library.tbl_book_loans where bookId = ${loan.bookId} AND branchId = ${loan.branchId} AND cardNo = ${loan.cardNo} AND dateOut = \'${loan.dateOut}\'`,
+    "select * from library.tbl_book_loans where bookId = ? AND branchId = ? AND cardNo = ? AND dateOut = ?",
+    [loan.bookId, loan.branchId, loan.cardNo, loan.dateOut],
     (err, result) => {
       cb(err, result);
     }
@@ -11,7 +12,8 @@ exports.getLoan = (loan, cb) => {
 
 exports.returnBook = (loan, cb) => {
   db.query(
-    `update library.tbl_book_loans SET dateIn = \'${loan.dateIn}\' where bookId = ${loan.bookId} AND branchId = ${loan.branchId} AND cardNo = ${loan.cardNo} AND dateOut = \'${loan.dateOut}\'`,
+    "update library.tbl_book_loans SET dateIn = ? where bookId = ? AND branchId = ? AND cardNo = ? AND dateOut = ?",
+    [loan.dateIn, loan.bookId, loan.branchId, loan.cardNo, loan.dateOut],
     (err, result) => {
       if (err) {
         db.rollback(() => {
@@ -28,7 +30,8 @@ exports.returnBook = (loan, cb) => {
 exports.getBookCopies = (bookCopyRef) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `select * from library.tbl_book_copies where bookId = ${bookCopyRef.bookId} AND branchId = ${bookCopyRef.branchId}`,
+      "select * from library.tbl_book_copies where bookId = ? AND branchId = ?",
+      [bookCopyRef.bookId, bookCopyRef.branchId],
       (err, result) => {
         return err ? reject(err) : resolve(result);
       }
@@ -39,7 +42,8 @@ exports.getBookCopies = (bookCopyRef) => {
 exports.getBorrower = (cardNo) => {
   return new Promise((resolve, reject) => {
     db.query(
-      `select * from library.tbl_borrower where cardNo = ${cardNo}`,
+      "select * from library.tbl_borrower where cardNo = ?",
+      [cardNo],
       (err, result) => {
         return err ? reject(err) : resolve(result);
       }
@@ -55,7 +59,8 @@ exports.checkOutBook = (loan, noOfCopies) => {
       }
 
       db.query(
-        `INSERT INTO library.tbl_book_loans (bookId, branchId, cardNo, dateOut, dueDate) VALUES (${loan.bookId}, ${loan.branchId}, ${loan.cardNo}, \'${loan.dateOut}\', \'${loan.dueDate}\')`,
+        "INSERT INTO library.tbl_book_loans (bookId, branchId, cardNo, dateOut, dueDate) VALUES (?, ?, ?, ?, ?)",
+        [loan.bookId, loan.branchId, loan.cardNo, loan.dateOut, loan.dueDate],
         (err, result) => {
           if (err) {
             db.rollback(function () {
@@ -64,7 +69,8 @@ exports.checkOutBook = (loan, noOfCopies) => {
           }
 
           db.query(
-            `UPDATE library.tbl_book_copies set noOfCopies = ${noOfCopies} where bookId = ${loan.bookId} and branchId = ${loan.branchId}`,
+            "UPDATE library.tbl_book_copies set noOfCopies = ? where bookId = ? and branchId = ?",
+            [noOfCopies, loan.bookId, loan.branchId],
             (err, result) => {
               if (err) {
                 db.rollback(function () {

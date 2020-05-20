@@ -7,6 +7,20 @@ const logger = winston.createLogger({
 });
 
 exports.returnBook = (loan, res) => {
+  if (
+    loan.bookId == undefined ||
+    loan.branchId == undefined ||
+    loan.cardNo == undefined ||
+    loan.dateOut == undefined
+  ) {
+    res
+      .status(400)
+      .send(
+        "Bad Request: We require the bookId, branchId, cardNo, and the dateOut of a loan to return a book."
+      );
+    return false;
+  }
+
   dao.getLoan(loan, (err, result) => {
     if (err) {
       res.status(500).send("Internal Server Error");
@@ -39,6 +53,19 @@ exports.returnBook = (loan, res) => {
 };
 
 exports.checkOutBook = (loan, res) => {
+  if (
+    loan.bookId == undefined ||
+    loan.branchId == undefined ||
+    loan.cardNo == undefined
+  ) {
+    res
+      .status(400)
+      .send(
+        "Bad Request: We require the bookId, branchId, and the cardNo of a loan to check out a book."
+      );
+    return;
+  }
+
   dao
     .getBorrower(loan.cardNo)
     // Check if borrower exists
