@@ -1,5 +1,5 @@
-let dao = require("../dao/borrowerDAO.js");
-let moment = require("moment");
+const dao = require("../dao/borrowerDAO.js");
+const moment = require("moment");
 
 const winston = require("winston");
 const logger = winston.createLogger({
@@ -34,7 +34,7 @@ exports.returnBook = (loan, res) => {
       return;
     } else if (result.length > 0 && result[0].dateIn !== null) {
       // Check if the book is turned in
-      res.status(406).send("That book is already returned. ");
+      res.status(400).send("That book is already returned. ");
       return;
     }
 
@@ -47,7 +47,18 @@ exports.returnBook = (loan, res) => {
         return;
       }
 
-      res.status(200).send(loan);
+      res.status(200);
+      res.format({
+        "application/json": function () {
+          res.send(result.message);
+        },
+        "application/xml": function () {
+          res.send(jsontoxml(result.message));
+        },
+        "text/plain": function () {
+          res.send(result.message.toString());
+        },
+      });
     });
   });
 };
@@ -88,9 +99,18 @@ exports.checkOutBook = (loan, res) => {
     })
     // Return the checked out book to the user
     .then((result) => {
-      res.status(200);
-      res.setHeader("Content-Type", "application/json");
-      res.send(loan);
+      res.status(201);
+      res.format({
+        "application/json": function () {
+          res.send(result.message);
+        },
+        "application/xml": function () {
+          res.send(jsontoxml(result.message));
+        },
+        "text/plain": function () {
+          res.send(result.message.toString());
+        },
+      });
     })
     .catch((err) => {
       res.status(500).send("Internal Server Error");
