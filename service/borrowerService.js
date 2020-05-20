@@ -50,13 +50,13 @@ exports.returnBook = (loan, res) => {
       res.status(200);
       res.format({
         "application/json": function () {
-          res.send(result.message);
+          res.send(loan);
         },
         "application/xml": function () {
-          res.send(jsontoxml(result.message));
+          res.send(jsontoxml(loan));
         },
         "text/plain": function () {
-          res.send(result.message.toString());
+          res.send(loan.toString());
         },
       });
     });
@@ -102,13 +102,13 @@ exports.checkOutBook = (loan, res) => {
       res.status(201);
       res.format({
         "application/json": function () {
-          res.send(result.message);
+          res.send(loan);
         },
         "application/xml": function () {
-          res.send(jsontoxml(result.message));
+          res.send(jsontoxml(loan));
         },
         "text/plain": function () {
-          res.send(result.message.toString());
+          res.send(loan.toString());
         },
       });
     })
