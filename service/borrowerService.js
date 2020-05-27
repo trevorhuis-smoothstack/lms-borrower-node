@@ -42,7 +42,7 @@ exports.returnBook = (loan) => {
         db.rollback(() => {
           reject(err);
         });
-        logger.error("error in return book");
+        logger.error(err);
       }
       db.commit();
       resolve(result);
