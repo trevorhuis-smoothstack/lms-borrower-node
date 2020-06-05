@@ -1,4 +1,4 @@
-exports.getLoan = (db, loan) => {
+exports.readLoan = (db, loan) => {
   return new Promise((resolve, reject) => {
     db.query(
       "select * from library.tbl_book_loans where bookId = ? AND branchId = ? AND cardNo = ? AND dateOut = ?",
@@ -7,6 +7,34 @@ exports.getLoan = (db, loan) => {
         return err ? reject(err) : resolve(result);
       }
     );
+  });
+};
+
+exports.readLoans = (db) => {
+  return new Promise((resolve, reject) => {
+    db.query("select * from library.tbl_book_loans ", (err, result) => {
+      return err ? reject(err) : resolve(result);
+    });
+  });
+};
+
+exports.readLoansByBorrower = (db, cardNo) => {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "select * from library.tbl_book_loans where cardNo = ?",
+      [cardNo],
+      (err, result) => {
+        return err ? reject(err) : resolve(result);
+      }
+    );
+  });
+};
+
+exports.readAllCopies = (db) => {
+  return new Promise((resolve, reject) => {
+    db.query("select * from library.tbl_book_copies ", (err, result) => {
+      return err ? reject(err) : resolve(result);
+    });
   });
 };
 
@@ -22,20 +50,19 @@ exports.returnBook = (db, loan) => {
   });
 };
 
-exports.getBookCopies = (db, bookCopyRef) => {
+exports.readBookCopies = (db, bookCopyRef) => {
   return new Promise((resolve, reject) => {
     db.query(
       "select * from library.tbl_book_copies where bookId = ? AND branchId = ?",
       [bookCopyRef.bookId, bookCopyRef.branchId],
       (err, result) => {
-        console.log(result);
         return err ? reject(err) : resolve(result);
       }
     );
   });
 };
 
-exports.getBorrower = (db, cardNo) => {
+exports.readBorrower = (db, cardNo) => {
   return new Promise((resolve, reject) => {
     db.query(
       "select * from library.tbl_borrower where cardNo = ?",

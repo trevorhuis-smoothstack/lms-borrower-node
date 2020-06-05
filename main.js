@@ -1,6 +1,9 @@
-let bodyParser = require("body-parser");
-let express = require("express");
-let app = express();
+const bodyParser = require("body-parser");
+const express = require("express");
+const app = express();
+const cors = require("cors");
+
+app.use(cors());
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,5 +22,5 @@ app.use(bodyParser.json());
 
 app.use(require("./controller/borrowerController"));
 
-app.listen(3000);
-console.log("Server running in port: 3000 ...");
+app.listen(3002);
+console.log("Server running in port: 3002 ...");

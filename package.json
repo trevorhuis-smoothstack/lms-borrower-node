@@ -19,6 +19,7 @@
   "homepage": "https://github.com/trevorhuis-smoothstack/lms-borrower-node#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsontoxml": "^1.0.1",
     "moment": "^2.25.3",

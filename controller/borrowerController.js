@@ -33,7 +33,7 @@ routes.put("/lms/borrower/returnBook", (req, res) => {
         return;
       }
       service.returnBook(data[0]);
-      res.status(201).send("Book Returned!");
+      res.status(201).send({ message: "Book Returned!" });
     })
     .catch((err) => {
       logger.error(err);
@@ -56,13 +56,16 @@ routes.post("/lms/borrower/checkOutBook", (req, res) => {
   }
 
   service
-    .checkIfBorrowerExists(req.body.cardNo)
-    .then((data) => {
-      if (data.length > 0) {
-        return service.checkNumOfCopies(req.body);
-      } else {
-        res.status(400).send("That card number is not in our database. ");
+    .readBorrower(req.body.cardNo)
+    .then((result) => {
+      if (result.length === 0) {
+        res.status(404).send({
+          message:
+            "There is no borrower with that card number in our database.",
+        });
         return;
+      } else {
+        return service.checkNumOfCopies(req.body);
       }
     })
     .then((data) => {
@@ -88,10 +91,69 @@ routes.post("/lms/borrower/checkOutBook", (req, res) => {
           res.send(data.toString());
         },
       });
+      res.end();
     })
     .catch((err) => {
       logger.error(err);
-      res.status(500).send("Internal Server Error");
+      res.status(500).send("Internal server error.");
+    });
+});
+
+routes.get("/lms/borrower/copies", (req, res) => {
+  service
+    .readAllCopies()
+    .then((result) => {
+      if (result.length === 0) {
+        res.status(404).send("There are no copies of books in our database.");
+        return;
+      }
+
+      res.status(200);
+      res.format({
+        "application/json": function () {
+          res.send(result);
+        },
+        "application/xml": function () {
+          res.send(jsontoxml(result));
+        },
+        "text/plain": function () {
+          res.send(result.toString());
+        },
+      });
+    })
+    .catch((err) => {
+      logger.error(err);
+      res.status(500).send("Internal server error.");
+    });
+});
+
+routes.get("/lms/borrower/:cardNo", (req, res) => {
+  service
+    .readBorrower(req.params.cardNo)
+    .then((result) => {
+      if (result.length === 0) {
+        res
+          .status(404)
+          .send("There is no borrower with that card number in our database.");
+        return;
+      }
+
+      res.status(200);
+      res.format({
+        "application/json": function () {
+          res.send(result);
+        },
+        "application/xml": function () {
+          res.send(jsontoxml(result));
+        },
+        "text/plain": function () {
+          res.send(result.toString());
+        },
+      });
+    })
+    .catch((err) => {
+      logger.error(err);
+      res.status(500).send("Internal server error.");
     });
 });
 

@@ -17,7 +17,47 @@ exports.readLoan = (loan) => {
       }
 
       try {
-        result = await dao.getLoan(db, loan);
+        result = await dao.readLoan(db, loan);
+      } catch (err) {
+        reject(err);
+        logger.error(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
+exports.readAllLoans = () => {
+  let result;
+  return new Promise((resolve, reject) => {
+    db.beginTransaction(async function (err) {
+      if (err) {
+        logger.error(err);
+        throw err;
+      }
+
+      try {
+        result = await dao.readLoan(db);
+      } catch (err) {
+        reject(err);
+        logger.error(err);
+      }
+      resolve(result);
+    });
+  });
+};
+
+exports.readAllCopies = () => {
+  let result;
+  return new Promise((resolve, reject) => {
+    db.beginTransaction(async function (err) {
+      if (err) {
+        logger.error(err);
+        throw err;
+      }
+
+      try {
+        result = await dao.readAllCopies(db);
       } catch (err) {
         reject(err);
         logger.error(err);
@@ -38,8 +78,11 @@ exports.returnBook = (loan) => {
 
       try {
         result = await dao.returnBook(db, loan);
+        bookCopies = await dao.readBookCopies(db, loan);
+        await dao.updateNumOfCopies(db, loan, bookCopies[0].noOfCopies + 1);
       } catch (err) {
         db.rollback(() => {
+          console.log(bookCopies);
           reject(err);
         });
         logger.error(err);
@@ -50,7 +93,7 @@ exports.returnBook = (loan) => {
   });
 };
 
-exports.checkIfBorrowerExists = (cardNo) => {
+exports.readBorrower = (cardNo) => {
   let result;
   return new Promise((resolve, reject) => {
     db.beginTransaction(async function (err) {
@@ -60,11 +103,28 @@ exports.checkIfBorrowerExists = (cardNo) => {
       }
 
       try {
-        result = await dao.getBorrower(db, cardNo);
+        result = await dao.readBorrower(db, cardNo);
       } catch (err) {
         logger.error(err);
         reject(err);
       }
+
+      try {
+        loansResult = await dao.readLoansByBorrower(db, cardNo);
+      } catch (err) {
+        logger.err(err);
+        reject(err);
+      }
+
+      if (result.length > 0) {
+        result = result[0];
+        result.loans = [];
+
+        loansResult.forEach((val) => {
+          result.loans.push(val);
+        });
+      }
+
       resolve(result);
     });
   });
@@ -80,7 +140,7 @@ exports.checkNumOfCopies = (loan) => {
       }
 
       try {
-        result = await dao.getBookCopies(db, loan);
+        result = await dao.readBookCopies(db, loan);
       } catch (err) {
         logger.error(err);
         reject(err);
@@ -106,7 +166,7 @@ exports.checkOutBook = (loan, numOfCopies) => {
       dao
         .checkOutBook(db, loan)
         .then(() => {
-          return dao.updateNumOfCopies(numOfCopies);
+          return dao.updateNumOfCopies(db, loan, numOfCopies);
         })
         .catch((err) => {
           db.rollback(() => {
