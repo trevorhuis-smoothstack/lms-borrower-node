@@ -10,14 +10,6 @@ exports.readLoan = (db, loan) => {
   });
 };
 
-exports.readLoans = (db) => {
-  return new Promise((resolve, reject) => {
-    db.query("select * from library.tbl_book_loans ", (err, result) => {
-      return err ? reject(err) : resolve(result);
-    });
-  });
-};
-
 exports.readLoansByBorrower = (db, cardNo) => {
   return new Promise((resolve, reject) => {
     db.query(

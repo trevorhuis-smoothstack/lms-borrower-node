@@ -82,13 +82,12 @@ exports.returnBook = (loan) => {
         await dao.updateNumOfCopies(db, loan, bookCopies[0].noOfCopies + 1);
       } catch (err) {
         db.rollback(() => {
-          console.log(bookCopies);
           reject(err);
         });
         logger.error(err);
       }
       db.commit();
-      resolve(result);
+      resolve(loan);
     });
   });
 };
@@ -111,18 +110,19 @@ exports.readBorrower = (cardNo) => {
 
       try {
         loansResult = await dao.readLoansByBorrower(db, cardNo);
+
+        if (result.length > 0) {
+          result = result[0];
+          result.loans = [];
+
+          loansResult.forEach((val) => {
+            result.loans.push(val);
+          });
+        }
       } catch (err) {
+        console.log("Error in read borrower");
         logger.err(err);
         reject(err);
-      }
-
-      if (result.length > 0) {
-        result = result[0];
-        result.loans = [];
-
-        loansResult.forEach((val) => {
-          result.loans.push(val);
-        });
       }
 
       resolve(result);
@@ -151,8 +151,9 @@ exports.checkNumOfCopies = (loan) => {
 };
 
 exports.checkOutBook = (loan, numOfCopies) => {
+  let result;
   return new Promise((resolve, reject) => {
-    db.beginTransaction(function (err) {
+    db.beginTransaction(async (err) => {
       if (err) {
         logger.error(err);
         throw err;
@@ -163,17 +164,15 @@ exports.checkOutBook = (loan, numOfCopies) => {
       dueDate = moment(dueDate).add(7, "days");
       loan.dueDate = dueDate.format("YYYY-MM-DD HH:mm:ss");
 
-      dao
-        .checkOutBook(db, loan)
-        .then(() => {
-          return dao.updateNumOfCopies(db, loan, numOfCopies);
-        })
-        .catch((err) => {
-          db.rollback(() => {
-            reject(err);
-          });
-          logger.error(err);
+      try {
+        result = await dao.checkOutBook(db, loan);
+        await dao.updateNumOfCopies(db, loan, numOfCopies);
+      } catch (err) {
+        db.rollback(() => {
+          reject(err);
         });
+        logger.error(err);
+      }
       db.commit();
       resolve(loan);
     });

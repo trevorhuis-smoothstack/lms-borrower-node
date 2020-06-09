@@ -24,3 +24,5 @@ app.use(require("./controller/borrowerController"));
 
 app.listen(3002);
 console.log("Server running in port: 3002 ...");
+
+module.exports = app;
